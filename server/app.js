@@ -48,5 +48,5 @@ app.get('/api/user/list', (req, res) => {
 
 
 app.listen(8888, () => {
-  console.log('Example app listening on port 8888!');
+  console.log('Example app listening on port 8888!！');
 });
