@@ -40,7 +40,16 @@ app.get('/', (req, res) => {
 // 获取用户列表
 app.get('/api/user/list', (req, res) => {
     // 查询数据库并返回数据
-    connection.query('SELECT * FROM user', (err, results) => {
+    const { name } = req.query;
+    let sql = 'SELECT * FROM user';
+    let params = [];
+
+    if (name) {
+        sql = 'SELECT * FROM user WHERE name LIKE ?';
+        params = [`%${name}%`];
+    }
+
+    connection.query(sql, params, (err, results) => {
       console.log(err,'err');
       console.log(results,'results');
       if (err) {
@@ -52,7 +61,6 @@ app.get('/api/user/list', (req, res) => {
         code:'200',
         data:results,
       });
-      // res.json(results);
     });
 });
 
@@ -89,7 +97,7 @@ app.post('/api/user/add', (req, res) => {
 });
 
 // 修改用户列表
-app.put('/api/user/update/:id', (req, res) => {
+app.post('/api/user/update/:id', (req, res) => {
   const { id } = req.params;
   const { name, age, email } = req.body;
   connection.query('UPDATE user SET name = ?, age = ?, email = ? WHERE id = ?', [name, age, email, id], (err, results) => {
@@ -123,6 +131,21 @@ app.delete('/api/user/delete/:id', (req, res) => {
   });
 });
 
+// 查看用户详情
+app.get('/api/user/detail/:id', (req, res) => {
+  const { id } = req.params;
+  connection.query('SELECT * FROM user WHERE id = ?', [id], (err, results) => {
+    if (err) {
+      console.error('Error getting user detail:', err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+    res.json({
+      code: '200',
+      data: results[0]
+    });
+  });
+});
 
 app.listen(8888, () => {
   console.log('Example app listening on port 8888!！');
